@@ -9,7 +9,7 @@ export const AuthenticationGuardian = () => {
         return null;
     }
     const me = useBoardState((s) => s.me);
-    if (me) {
+    if (me && me.trim().length>0) {
         return <Outlet/>;
     } else {
         return <Navigate to="/landing" replace/>;

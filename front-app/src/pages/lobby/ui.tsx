@@ -7,11 +7,13 @@ import {useBoardState} from "../board/state.ts";
 export const LobbyPage: React.FC = () => {
     const me = useBoardState((s) => s.me);
     const setMe = useBoardState((s) => s.setMe);
+    const setOther = useBoardState((s) => s.setOther);
 
     const navigate = useNavigate();
 
     const logout = () => {
         setMe(undefined);
+        setOther(undefined);
         navigate("/landing", {replace: true});
     };
 
