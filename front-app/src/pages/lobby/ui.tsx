@@ -1,19 +1,25 @@
 // pages/lobby/ui.tsx
 
-import {Flex, Stack} from "@mantine/core";
-import {useLandingState} from "../landing/state.ts";
-import {Link} from "react-router-dom";
-
-export {Stack} from "@mantine/core";
+import {Button, Flex, Stack} from "@mantine/core";
+import {useNavigate} from "react-router-dom";
+import {useBoardState} from "../board/state.ts";
 
 export const LobbyPage: React.FC = () => {
-    const user = useLandingState((s) => s.user);
+    const me = useBoardState((s) => s.me);
+    const setMe = useBoardState((s) => s.setMe);
+
+    const navigate = useNavigate();
+
+    const logout = () => {
+        setMe(undefined);
+        navigate("/landing", {replace: true});
+    };
 
     return (<Stack gap="xs">
         <Flex w="100%" gap="sm" align="center">
             <h3>RWS Chess 2</h3>
-            <div>{user}</div>
-            <Link to={"/landing"}>Exit</Link>
+            <div>{me}</div>
+            <Button onClick={logout}>Logout</Button>
         </Flex>
     </Stack>);
 };

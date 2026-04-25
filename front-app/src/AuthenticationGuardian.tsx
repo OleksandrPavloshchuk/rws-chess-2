@@ -1,13 +1,17 @@
 // AuthenticationGuardian.tsx
 
 import {Navigate, Outlet} from "react-router-dom";
-import {useLobbyState} from "./pages/lobby/state.ts";
+import {useBoardState} from "./pages/board/state.ts";
 
 export const AuthenticationGuardian = () => {
-    const isAuthenticated = useLobbyState((s) => s.isAuthenticated);
-    if (isAuthenticated) {
+    const isHydrated = useBoardState?.persist.hasHydrated?.();
+    if (!isHydrated) {
+        return null;
+    }
+    const me = useBoardState((s) => s.me);
+    if (me) {
         return <Outlet/>;
     } else {
-        return <Navigate to="/landing" replace />;
+        return <Navigate to="/landing" replace/>;
     }
 };
