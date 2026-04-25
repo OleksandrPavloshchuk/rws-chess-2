@@ -1,3 +1,5 @@
+// pages/landing/state.tsx
+
 import {create} from "zustand";
 
 export interface LandingState {
