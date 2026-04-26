@@ -10,7 +10,7 @@ import java.util.TreeSet;
 @ApplicationScoped
 public class PlayerServiceImpl implements PlayerService {
 
-    private Set<String> players = new TreeSet<>();
+    private final Set<String> players = new TreeSet<>();
 
     @Override
     public void add(String name) {
