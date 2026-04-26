@@ -2,5 +2,6 @@
 
 set -x
 
-curl -X GET \
+curl -v \
+  -X GET \
   http://localhost:8080/players

@@ -2,5 +2,6 @@
 
 set -x
 
-curl -X DELETE \
+curl -v \
+  -X DELETE \
   "http://localhost:8080/players/$1"
