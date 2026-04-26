@@ -1,0 +1,2 @@
+rootProject.name = 'rws-chess-2'
+include 'back-app'

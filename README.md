@@ -7,5 +7,8 @@
 ## Commands
 
 ### Front
-* `npm run build` Build application
-* `npm run preview` Start application after build
+* `npm run build` Build front application
+* `npm run preview` Start front application after build
+
+### Back
+* `./gradlew quarkusDev` Start back application
