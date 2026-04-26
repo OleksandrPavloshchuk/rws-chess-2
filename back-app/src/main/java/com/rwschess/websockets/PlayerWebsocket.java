@@ -19,13 +19,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @ServerEndpoint("/ws/players/{player}")
 public class PlayerWebsocket {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     private final Map<String, Session> namesToWebsockets = new ConcurrentHashMap<>();
     private final Map<Session, String> websocketsToNames = new ConcurrentHashMap<>();
 
     @Inject
     PlayerService playerService;
+
+    @Inject
+    ObjectMapper objectMapper;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("player") String player) {
