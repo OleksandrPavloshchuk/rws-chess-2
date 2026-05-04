@@ -28,6 +28,9 @@ public class PlayersEndpoint {
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     public Collection<String> addPlayer(String player) {
+        if (player == null || player.isEmpty()) {
+            throw new WebApplicationException("Player name is empty", 409);
+        }
         if (playerService.containsPlayer(player)) {
             throw new WebApplicationException("Player already exists", 409);
         } else {

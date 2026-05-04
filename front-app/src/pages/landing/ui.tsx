@@ -1,4 +1,4 @@
-// pages/landing/ui.tsx
+// pages/landing/ui.ts
 
 import {Button, Container, Stack, TextInput} from "@mantine/core";
 import {useNavigate} from "react-router-dom";

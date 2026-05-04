@@ -1,4 +1,4 @@
-// pages/lobby/state.tsx
+// pages/lobby/state.ts
 
 import {create} from "zustand";
 

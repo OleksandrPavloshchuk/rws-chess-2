@@ -1,4 +1,4 @@
-// pages/board/state.tsx
+// pages/board/state.ts
 
 import {create} from "zustand";
 import {persist} from "zustand/middleware";
