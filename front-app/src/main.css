@@ -10,10 +10,31 @@
     font-size: 12pt;
     padding: 15px;
     border-radius: 6px;
-    background: white;
+    background-color: powderblue;
     display: grid;
     transition: background 0.3s ease, color 0.3s ease;
     border-left: 6px solid transparent;
     box-shadow: 6px 6px 6px rgba(0, 0, 0, 0.25);
+}
 
+.start-white {
+    color: black;
+    background-color: white;
+    cursor: pointer;
+}
+
+.start-white:hover {
+    color: black;
+    background-color: #CCCCCC;
+}
+
+.start-black {
+    color: white;
+    background-color: black;
+    cursor: pointer;
+}
+
+.start-black:hover {
+    color: white;
+    background-color: #666666;
 }

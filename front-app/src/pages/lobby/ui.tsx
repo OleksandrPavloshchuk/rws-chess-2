@@ -51,7 +51,17 @@ export const LobbyPage: React.FC = () => {
 
     const renderFreePlayer = (name: string) =>
         (<div className={"free-player"}>
-            {name}
+            <Flex w="100%" gap="sm">
+                {name}
+                <Button
+                    onClick={() => notify("TODO", "start white")}
+                    className={"start-white"}
+                >Start White</Button>
+                <Button
+                    onClick={() => notify("TODO", "start black")}
+                    className={"start-black"}
+                >Start Black</Button>
+            </Flex>
         </div>);
 
     return (<Stack gap="xs">
