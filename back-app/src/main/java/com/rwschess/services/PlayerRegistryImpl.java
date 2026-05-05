@@ -1,6 +1,5 @@
 package com.rwschess.services;
 
-import com.rwschess.websockets.PlayerWebsocket;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.Session;
 
@@ -14,32 +13,34 @@ import java.util.logging.Logger;
 public class PlayerRegistryImpl implements PlayerRegistry {
     private final Logger logger = Logger.getLogger(PlayerRegistryImpl.class.getName());
 
-    private final Map<String, Session> namesToSessions = new ConcurrentHashMap<>();
+    private final Map<String, Player> players = new ConcurrentHashMap<>();
 
     @Override
     public boolean contains(String playerName) {
-        return namesToSessions.containsKey(playerName);
+        return players.containsKey(playerName);
     }
 
     @Override
     public void add(String playerName, Session session) {
         logger.info(String.format("Adding player %s", playerName));
-        namesToSessions.put(playerName, session);
+        players.put(playerName, new Player(playerName, session));
     }
 
     @Override
     public void remove(String playerName) {
         logger.info(String.format("Removing player %s", playerName));
-        namesToSessions.remove(playerName);
+        players.remove(playerName);
     }
 
     @Override
     public Collection<String> allPlayers() {
-        return namesToSessions.keySet();
+        return players.keySet();
     }
 
     @Override
     public Collection<Session> allSessions() {
-        return namesToSessions.values();
+        return players.values().stream()
+                .map(Player::getWsSession)
+                .toList();
     }
 }

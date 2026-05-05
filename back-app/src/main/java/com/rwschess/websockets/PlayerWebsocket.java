@@ -4,13 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rwschess.services.PlayerRegistry;
 import jakarta.inject.Inject;
+import jakarta.websocket.CloseReason;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ServerEndpoint("/ws/players/{player}")
@@ -25,6 +28,10 @@ public class PlayerWebsocket {
 
     @OnOpen
     public void onOpen(Session session, @PathParam("player") String player) {
+        if (playerRegistry.contains(player)) {
+            closeSocket(session, "Player already connected");
+            return;
+        }
         logger.info("Player " + player + " connected. SessionId: " + session.getId());
         playerRegistry.add(player, session);
         broadcastPlayerList();
@@ -42,11 +49,21 @@ public class PlayerWebsocket {
         final Collection<String> players = playerRegistry.allPlayers();
         try {
             final String playersStr = objectMapper.writeValueAsString(players);
-            for (final Session session : playerRegistry.allSessions()) {
-                session.getAsyncRemote().sendText(playersStr);
-            }
+            playerRegistry.allSessions().forEach(
+                    session -> session.getAsyncRemote().sendText(playersStr)
+            );
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void closeSocket(Session session, String reason) {
+        try {
+            session.close(
+                    new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, reason)
+            );
+        } catch (IOException ex) {
+            logger.log(Level.WARNING, ex.getMessage(), ex);
         }
     }
 

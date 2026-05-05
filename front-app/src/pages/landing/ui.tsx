@@ -15,9 +15,6 @@ export const LandingPage:React.FC = () => {
         if (!me || me.trim().length==0) {
             return;
         }
-
-        // TODO check presence:
-
         navigate("/lobby", {replace: true});
     };
 

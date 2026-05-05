@@ -14,8 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.util.List;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerWebsocketUnitTest {
@@ -34,6 +33,13 @@ class PlayerWebsocketUnitTest {
 
     @InjectMocks
     private PlayerWebsocket playerWebsocket;
+
+    @Test
+    void testAddPlayerTwice() throws IOException {
+        doReturn(true).when(playerRegistry).contains("A");
+        playerWebsocket.onOpen(sessionA, "A");
+        verify(sessionA).close(any());
+    }
 
     @Test
     void testBroadcastPlayersListOK() throws IOException {

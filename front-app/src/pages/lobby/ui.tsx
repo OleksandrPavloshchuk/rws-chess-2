@@ -1,10 +1,11 @@
 // pages/lobby/ui.tsx
 
-import {Button, Flex, Stack} from "@mantine/core";
+import {Button, Flex, ScrollArea, Stack} from "@mantine/core";
 import {useNavigate} from "react-router-dom";
 import {useBoardState} from "../board/state.ts";
 import {useLobbyState} from "./state.ts";
 import {useEffect, useRef} from "react";
+import {notify} from "../../libs/utils.ts";
 
 export const LobbyPage: React.FC = () => {
     const me = useBoardState((s) => s.me);
@@ -24,22 +25,16 @@ export const LobbyPage: React.FC = () => {
         }
         const ws = new WebSocket(`ws://localhost:8080/ws/players/${me}`);
         wsRef.current = ws;
-
-        console.log("TRACE", {ws});
-
-
-        ws.onopen = () => {
-            console.log("WS connected");
-        };
-
         ws.onmessage = (event) => {
-            console.log("WS message:", event.data);
             const players: string[] = JSON.parse(event.data);
             setFreePlayers(players.filter(p => p !== me));
         };
 
-        ws.onclose = () => {
-            console.log("WS closed");
+        ws.onclose = (event) => {
+            if (event.reason === "Player already connected") {
+                navigate("/landing", {replace: true});
+                notify("Authentication error", "This name is already in use");
+            }
         };
 
         return () => {
@@ -54,16 +49,21 @@ export const LobbyPage: React.FC = () => {
         navigate("/landing", {replace: true});
     };
 
+    const renderFreePlayer = (name: string) =>
+        (<div className={"free-player"}>
+            {name}
+        </div>);
+
     return (<Stack gap="xs">
         <Flex w="100%" gap="sm" align="center">
             <h3>RWS Chess 2</h3>
             <div>{me}</div>
             <Button onClick={logout}>Logout</Button>
         </Flex>
-        <div>{
-            freePlayers.map( (name) => <div
-                key={name}
-            >{name}</div>)
-        }</div>
+        <ScrollArea h={720}>
+            <div className={"lobby"}>{
+                freePlayers.map((name) => renderFreePlayer(name))
+            }</div>
+        </ScrollArea>
     </Stack>);
 };

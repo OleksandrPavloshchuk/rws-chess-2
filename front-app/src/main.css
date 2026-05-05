@@ -1,0 +1,19 @@
+.lobby {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 10px;
+    padding: 16px;
+    background-color: ghostwhite;
+}
+
+.free-player {
+    font-size: 12pt;
+    padding: 15px;
+    border-radius: 6px;
+    background: white;
+    display: grid;
+    transition: background 0.3s ease, color 0.3s ease;
+    border-left: 6px solid transparent;
+    box-shadow: 6px 6px 6px rgba(0, 0, 0, 0.25);
+
+}
