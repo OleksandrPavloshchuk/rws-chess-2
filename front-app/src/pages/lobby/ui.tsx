@@ -25,6 +25,9 @@ export const LobbyPage: React.FC = () => {
         const ws = new WebSocket(`ws://localhost:8080/ws/players/${me}`);
         wsRef.current = ws;
 
+        console.log("TRACE", {ws});
+
+
         ws.onopen = () => {
             console.log("WS connected");
         };
