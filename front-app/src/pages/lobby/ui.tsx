@@ -51,7 +51,7 @@ export const LobbyPage: React.FC = () => {
 
     const renderFreePlayer = (name: string) =>
         (<div className={"free-player"}>
-            <Flex w="100%" gap="sm">
+            <Flex w="100%" gap="sm" >
                 {name}
                 <Button
                     onClick={() => notify("TODO", "start white")}
@@ -65,7 +65,9 @@ export const LobbyPage: React.FC = () => {
         </div>);
 
     return (<Stack gap="xs">
-        <Flex w="100%" gap="sm" align="center">
+        <Flex w="100%" gap="sm" align="center" justify="space-between"
+            style={{paddingLeft: "10px", paddingRight: "10px"}}
+        >
             <h3>RWS Chess 2</h3>
             <div>{me}</div>
             <Button onClick={logout}>Logout</Button>
