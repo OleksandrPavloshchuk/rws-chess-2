@@ -44,7 +44,7 @@ class PlayerWebsocketUnitTest {
     @Test
     void testBroadcastPlayersListOK() throws IOException {
         doReturn(endpointA).when(sessionA).getAsyncRemote();
-        doReturn(List.of("A")).when(playerRegistry).allPlayers();
+        doReturn(List.of("A")).when(playerRegistry).freePlayers();
         doReturn(List.of(sessionA)).when(playerRegistry).allSessions();
         playerWebsocket.broadcastPlayerList();
         verify(objectMapper).writeValueAsString(List.of("A"));

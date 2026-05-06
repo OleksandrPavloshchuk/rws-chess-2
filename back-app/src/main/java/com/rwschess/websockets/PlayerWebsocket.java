@@ -57,7 +57,7 @@ public class PlayerWebsocket {
 
     public void broadcastPlayerList() {
         logger.info("Broadcast player list");
-        final Collection<String> players = playerRegistry.allPlayers();
+        final Collection<String> players = playerRegistry.freePlayers();
         try {
             final String playersStr = objectMapper.writeValueAsString(players);
             playerRegistry.allSessions().forEach(
