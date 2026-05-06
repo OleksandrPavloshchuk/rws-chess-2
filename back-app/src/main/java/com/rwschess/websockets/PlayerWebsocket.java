@@ -1,8 +1,10 @@
 package com.rwschess.websockets;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rwschess.services.PlayerRegistry;
+import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.OnClose;
@@ -12,6 +14,8 @@ import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,8 +30,14 @@ public class PlayerWebsocket {
     @Inject
     ObjectMapper objectMapper;
 
+    @PostConstruct
+    public void init() {
+        objectMapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
+    }
+
     @OnOpen
-    public void onOpen(Session session, @PathParam("player") String player) {
+    public void onOpen(Session session, @PathParam("player") String playerRaw) {
+        final String player = decodePlayer(playerRaw);
         if (playerRegistry.contains(player)) {
             closeSocket(session, "Player already connected");
             return;
@@ -38,7 +48,8 @@ public class PlayerWebsocket {
     }
 
     @OnClose
-    public void onClose(Session session, @PathParam("player") String player) {
+    public void onClose(Session session, @PathParam("player") String playerRaw) {
+        final String player = decodePlayer(playerRaw);
         logger.info("Player " + player + " disconnected. SessionId: " + session.getId());
         playerRegistry.remove(player);
         broadcastPlayerList();
@@ -65,6 +76,10 @@ public class PlayerWebsocket {
         } catch (IOException ex) {
             logger.log(Level.WARNING, ex.getMessage(), ex);
         }
+    }
+
+    private static String decodePlayer(String src) {
+        return URLDecoder.decode(src, StandardCharsets.UTF_8);
     }
 
 }
