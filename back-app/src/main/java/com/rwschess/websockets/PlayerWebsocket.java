@@ -1,10 +1,9 @@
 package com.rwschess.websockets;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rwschess.services.PlayerRegistry;
-import jakarta.annotation.PostConstruct;
+import com.rwschess.websockets.messages.FreePlayersMessage;
 import jakarta.inject.Inject;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.OnClose;
@@ -16,7 +15,6 @@ import jakarta.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,11 +27,6 @@ public class PlayerWebsocket {
 
     @Inject
     ObjectMapper objectMapper;
-
-    @PostConstruct
-    public void init() {
-        objectMapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
-    }
 
     @OnOpen
     public void onOpen(Session session, @PathParam("player") String playerRaw) {
@@ -56,12 +49,13 @@ public class PlayerWebsocket {
     }
 
     public void broadcastPlayerList() {
-        logger.info("Broadcast player list");
-        final Collection<String> players = playerRegistry.freePlayers();
+        final FreePlayersMessage freePlayersMessage = new FreePlayersMessage(
+            playerRegistry.freePlayers()
+        );
         try {
-            final String playersStr = objectMapper.writeValueAsString(players);
+            final String str = objectMapper.writeValueAsString(freePlayersMessage);
             playerRegistry.allSessions().forEach(
-                    session -> session.getAsyncRemote().sendText(playersStr)
+                    session -> session.getAsyncRemote().sendText(str)
             );
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

@@ -2,6 +2,7 @@ package com.rwschess.websockets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rwschess.services.PlayerRegistry;
+import com.rwschess.websockets.messages.FreePlayersMessage;
 import jakarta.websocket.RemoteEndpoint;
 import jakarta.websocket.Session;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,8 @@ class PlayerWebsocketUnitTest {
         doReturn(List.of("A")).when(playerRegistry).freePlayers();
         doReturn(List.of(sessionA)).when(playerRegistry).allSessions();
         playerWebsocket.broadcastPlayerList();
-        verify(objectMapper).writeValueAsString(List.of("A"));
+        final FreePlayersMessage expected = new FreePlayersMessage(List.of("A"));
+        verify(objectMapper).writeValueAsString(expected);
     }
 
 

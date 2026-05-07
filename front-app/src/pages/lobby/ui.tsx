@@ -4,8 +4,9 @@ import {Button, Flex, ScrollArea, Stack} from "@mantine/core";
 import {useNavigate} from "react-router-dom";
 import {useBoardState} from "../board/state.ts";
 import {useLobbyState} from "./state.ts";
-import {useEffect, useRef} from "react";
+import {useEffect} from "react";
 import {notify} from "../../libs/utils.ts";
+import {connect, disconnect} from "../../services/backConnector.ts";
 
 export const LobbyPage: React.FC = () => {
     const me = useBoardState((s) => s.me);
@@ -16,34 +17,27 @@ export const LobbyPage: React.FC = () => {
     const setFreePlayers = useLobbyState((s) => s.setFreePlayers);
 
     const navigate = useNavigate();
-
-    const wsRef = useRef<WebSocket | null>(null);
+    const playerAlreadyConnectedHandler = () => {
+        navigate("/landing", {replace: true});
+        notify("Authentication error", "This name is already in use");
+    };
 
     useEffect(() => {
         if (!me) {
             return;
         }
-        const ws = new WebSocket(`ws://localhost:8080/ws/players/${me}`);
-        wsRef.current = ws;
-        ws.onmessage = (event) => {
-            const players: string[] = JSON.parse(event.data);
-            setFreePlayers(players.filter(p => p !== me));
-        };
+        connect(
+            (a: string[]) => setFreePlayers(
+                a.filter( (v) => v!==me)
+            ),
+            playerAlreadyConnectedHandler
+        );
 
-        ws.onclose = (event) => {
-            if (event.reason === "Player already connected") {
-                navigate("/landing", {replace: true});
-                notify("Authentication error", "This name is already in use");
-            }
-        };
-
-        return () => {
-            ws.close();
-        };
+        return disconnect;
     }, [me]);
 
-
     const logout = () => {
+        disconnect();
         setMe(undefined);
         setOther(undefined);
         navigate("/landing", {replace: true});
