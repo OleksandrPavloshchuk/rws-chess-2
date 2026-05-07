@@ -4,6 +4,7 @@ import {createBrowserRouter, Navigate} from "react-router-dom";
 import {LandingPage} from "./pages/landing/ui.tsx";
 import {LobbyPage} from "./pages/lobby/ui.tsx";
 import {AuthenticationGuardian} from "./AuthenticationGuardian.tsx";
+import {BoardPage} from "./pages/board/ui.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -20,6 +21,10 @@ export const router = createBrowserRouter([
             {
                 path: "/lobby",
                 element: <LobbyPage/>
+            },
+            {
+                path: "/board",
+                element: <BoardPage/>
             }
         ]
     }

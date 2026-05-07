@@ -23,7 +23,7 @@ public class PlayerRegistryImpl implements PlayerRegistry {
     @Override
     public void add(String playerName, Session session) {
         logger.info(String.format("Adding player %s", playerName));
-        players.put(playerName, new Player(playerName, session));
+        players.put(playerName, new Player(session));
     }
 
     @Override
@@ -35,7 +35,7 @@ public class PlayerRegistryImpl implements PlayerRegistry {
     @Override
     public Collection<String> freePlayers() {
         return players.keySet().stream()
-                .filter(key -> players.get(key).getOpponentName() == null)
+                .filter(key -> players.get(key).isFree())
                 .collect(Collectors.toUnmodifiableSet());
     }
 
@@ -44,5 +44,10 @@ public class PlayerRegistryImpl implements PlayerRegistry {
         return players.values().stream()
                 .map(Player::getWsSession)
                 .toList();
+    }
+
+    @Override
+    public Player getPlayer(String playerName) {
+        return players.get(playerName);
     }
 }

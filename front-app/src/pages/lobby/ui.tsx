@@ -6,18 +6,39 @@ import {useBoardState} from "../board/state.ts";
 import {useLobbyState} from "./state.ts";
 import {useEffect} from "react";
 import {notify} from "../../libs/utils.ts";
-import {connect, disconnect} from "../../services/backConnector.ts";
+import {connectToBack, disconnectFromBack, sendToBack} from "../../services/backConnector.ts";
+import {createGameStartRequest, type GameStart} from "../../messages/messages.ts";
 
 export const LobbyPage: React.FC = () => {
     const me = useBoardState((s) => s.me);
+    if (!me) {
+        return;
+    }
+
     const setMe = useBoardState((s) => s.setMe);
     const setOther = useBoardState((s) => s.setOther);
+    const setWhiteMe = useBoardState((s) => s.setWhiteMe);
+    const setGameId = useBoardState((s) => s.setGameId);
 
     const freePlayers = useLobbyState((s) => s.freePlayers);
     const setFreePlayers = useLobbyState((s) => s.setFreePlayers);
 
     const navigate = useNavigate();
-    const playerAlreadyConnectedHandler = () => {
+
+    const notMe = (s: string) => s !== me;
+
+    const freePlayersConsumer = (list: string[]) => setFreePlayers(
+        list.filter(notMe)
+    );
+
+    const gameStarter = (game: GameStart) => {
+        setOther(game.players.find(notMe));
+        setWhiteMe(game.white === me);
+        setGameId(game.gameId);
+        navigate("/board", {replace: true});
+    };
+
+    const authenticationErrorHandler = () => {
         navigate("/landing", {replace: true});
         notify("Authentication error", "This name is already in use");
     };
@@ -26,33 +47,36 @@ export const LobbyPage: React.FC = () => {
         if (!me) {
             return;
         }
-        connect(
-            (a: string[]) => setFreePlayers(
-                a.filter( (v) => v!==me)
-            ),
-            playerAlreadyConnectedHandler
+        connectToBack(
+            freePlayersConsumer,
+            gameStarter,
+            authenticationErrorHandler
         );
 
-        return disconnect;
+        return disconnectFromBack;
     }, [me]);
 
     const logout = () => {
-        disconnect();
+        disconnectFromBack();
         setMe(undefined);
         setOther(undefined);
         navigate("/landing", {replace: true});
     };
 
+    const startGameRequest = (other: string, whiteMe: boolean) => {
+        sendToBack(createGameStartRequest(me, other, whiteMe));
+    };
+
     const renderFreePlayer = (name: string) =>
-        (<div className={"free-player"}>
-            <Flex w="100%" gap="sm" >
+        (<div className={"free-player"} key={name}>
+            <Flex w="100%" gap="sm">
                 {name}
                 <Button
-                    onClick={() => notify("TODO", "start white")}
+                    onClick={() => startGameRequest(name, true)}
                     className={"start-white"}
                 >Start White</Button>
                 <Button
-                    onClick={() => notify("TODO", "start black")}
+                    onClick={() => startGameRequest(name, false)}
                     className={"start-black"}
                 >Start Black</Button>
             </Flex>
@@ -60,7 +84,7 @@ export const LobbyPage: React.FC = () => {
 
     return (<Stack gap="xs">
         <Flex w="100%" gap="sm" align="center" justify="space-between"
-            style={{paddingLeft: "10px", paddingRight: "10px"}}
+              style={{paddingLeft: "10px", paddingRight: "10px"}}
         >
             <h3>RWS Chess 2</h3>
             <div>{me}</div>

@@ -3,21 +3,19 @@ package com.rwschess.services;
 import jakarta.websocket.Session;
 
 public class Player {
-    private final String name;
     private final Session wsSession;
-    private String opponentName = null;
+    private boolean free = true;
 
-    public Player(String name, Session wsSession) {
-        this.name = name;
+    public Player(Session wsSession) {
         this.wsSession = wsSession;
     }
 
-    public void setOpponentName(String opponentName) {
-        this.opponentName = opponentName;
+    public boolean isFree() {
+        return free;
     }
 
-    public String getOpponentName() {
-        return opponentName;
+    public void setFree(boolean free) {
+        this.free = free;
     }
 
     public Session getWsSession() {

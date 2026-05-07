@@ -1,13 +1,14 @@
 // services/backConnector.ts
 
 import {useBoardState} from "../pages/board/state.ts";
-import type {Message} from "../messages/messages.ts";
+import type {GameStart, BackMessage, FrontMessage} from "../messages/messages.ts";
 import {notify} from "../libs/utils.ts";
 
 let ws: WebSocket | null = null;
 
-export const connect = (
+export const connectToBack = (
     freePlayersConsumer: (arg: string[]) => void,
+    gameStarter: (game: GameStart) => void,
     playerAlreadyConnectedHandler: () => void
 ) => {
     if (ws) {
@@ -20,7 +21,11 @@ export const connect = (
         ws.onopen = () => {
             console.log("connected to backend");
         }
-        ws.onmessage = (event) => messageHandler(event, freePlayersConsumer);
+        ws.onmessage = (event) => backMessageHandler(
+            event,
+            freePlayersConsumer,
+            gameStarter
+        );
         ws.onclose = (event) => {
             console.log("disconnected from backend");
             if (event.reason === "Player already connected") {
@@ -31,21 +36,33 @@ export const connect = (
     }
 }
 
-export const disconnect = () => {
+export const sendToBack = <T>(msg: FrontMessage<T>) => {
+    const json = JSON.stringify(msg);
+    console.log(`send message: ${json}`)
+    ws?.send(json);
+}
+
+export const disconnectFromBack = () => {
     ws?.close();
     ws = null;
 }
 
-const messageHandler = (
-    event: MessageEvent<any>,
-    freePlayersConsumer: (arg: string[]) => void
+const backMessageHandler = (
+    event: MessageEvent<string>,
+    freePlayersConsumer: (arg: string[]) => void,
+    gameStarter: (game: GameStart) => void
 ) => {
-    const msg: Message = JSON.parse(event.data);
+    console.log(`received message: ${event.data}`)
+
+    const msg: BackMessage<any> = JSON.parse(event.data);
     switch (msg.type) {
         case 'FREE_PLAYERS':
             freePlayersConsumer(msg.payload as string[]);
             break;
+        case "GAME_START":
+            gameStarter(msg.payload as GameStart)
+            break;
         default:
-            notify("ERROR", `Unexpected message type ${msg.type}`)
+            notify("ERROR", `Unexpected backend message type ${msg.type}`)
     }
 }

@@ -10,4 +10,5 @@ public interface PlayerRegistry {
     void remove(String playerName);
     Collection<String> freePlayers();
     Collection<Session> allSessions();
+    Player getPlayer(String playerName);
 }
