@@ -10,15 +10,23 @@ export const connect = (
     freePlayersConsumer: (arg: string[]) => void,
     playerAlreadyConnectedHandler: () => void
 ) => {
+    if (ws) {
+        return;
+    }
     const me = useBoardState.getState().me;
     if (me) {
         const url = `ws://localhost:8080/ws/players/${me}`;
         ws = new WebSocket(url);
+        ws.onopen = () => {
+            console.log("connected to backend");
+        }
         ws.onmessage = (event) => messageHandler(event, freePlayersConsumer);
         ws.onclose = (event) => {
+            console.log("disconnected from backend");
             if (event.reason === "Player already connected") {
                 playerAlreadyConnectedHandler();
             }
+            ws = null;
         };
     }
 }
@@ -35,8 +43,7 @@ const messageHandler = (
     const msg: Message = JSON.parse(event.data);
     switch (msg.type) {
         case 'FREE_PLAYERS':
-            const players = msg.payload as string[];
-            freePlayersConsumer(players);
+            freePlayersConsumer(msg.payload as string[]);
             break;
         default:
             notify("ERROR", `Unexpected message type ${msg.type}`)
